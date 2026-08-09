@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage questions
+    url: https://github.com/tugrakaymakcioglu/RepoArena/discussions
+    about: Ask setup and usage questions without posting private source or credentials.
+  - name: Private security report
+    url: https://github.com/tugrakaymakcioglu/RepoArena/security/advisories/new
+    about: Report vulnerabilities privately through GitHub Security Advisories.

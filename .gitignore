@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# RepoArena local state (config.toml is intentionally shareable)
+.repoarena/repoarena.db
+.repoarena/repoarena.db-*
+.repoarena/cache/
+.repoarena/tasks/
+.repoarena/runs/
+.repoarena/reports/

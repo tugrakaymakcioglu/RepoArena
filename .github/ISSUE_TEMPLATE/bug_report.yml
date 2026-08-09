@@ -1,0 +1,64 @@
+name: Bug report
+description: Report a reproducible RepoArena defect without sharing private source or secrets.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve RepoArena. Remove repository source, credentials, and private paths before submitting.
+  - type: input
+    id: version
+    attributes:
+      label: RepoArena version
+      description: Output of `repoarena --version`.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Initialization or configuration
+        - GitHub discovery
+        - Candidate scoring or baseline validation
+        - Solver isolation or patch capture
+        - Docker verification
+        - Codex adapter
+        - Claude adapter
+        - Storage or reporting
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and the behavior you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide exact commands or a synthetic public fixture. Do not attach private repositories.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Redacted doctor output
+      description: Paste `repoarena doctor` output after removing sensitive values.
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed API keys, credentials, private source code, and sensitive paths.
+          required: true
+        - label: This is not a security vulnerability. Security reports use GitHub Security Advisories.
+          required: true

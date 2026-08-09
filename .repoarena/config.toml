@@ -1,0 +1,47 @@
+schema_version = 1
+
+[benchmark]
+quality_threshold = 70
+timeout_seconds = 900
+baseline_repetitions = 2
+max_patch_files = 50
+max_patch_lines = 2000
+max_patch_bytes = 5000000
+
+[sandbox]
+engine = "docker"
+cpus = 2.0
+memory = "4g"
+pids_limit = 512
+solver_network = "provider-only"
+setup_network = "bridge"
+proxy_image = "repoarena/egress-proxy:local"
+
+[github]
+source = "auto"
+request_timeout_seconds = 30
+
+[verification]
+profile = "auto"
+setup_commands = []
+test_command = []
+
+[agents.codex]
+enabled = true
+image = "repoarena/codex:local"
+executable = "codex"
+allowed_domains = [
+    ".openai.com",
+    ".chatgpt.com",
+    ".oaistatic.com",
+    ".oaiusercontent.com",
+]
+
+[agents.claude]
+enabled = true
+image = "repoarena/claude:local"
+executable = "claude"
+allowed_domains = [
+    ".anthropic.com",
+    ".claude.ai",
+]

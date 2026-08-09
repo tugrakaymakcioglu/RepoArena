@@ -1,0 +1,14 @@
+.git
+.github
+.repoarena
+.venv
+__pycache__
+.mypy_cache
+.pytest_cache
+.ruff_cache
+dist
+htmlcov
+tests
+*.db
+*.log
+*.patch

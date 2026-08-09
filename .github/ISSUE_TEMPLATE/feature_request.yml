@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a focused improvement to repository-specific benchmarking.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What repository benchmarking problem is not solved today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful behavior and expected CLI experience.
+    validations:
+      required: true
+  - type: textarea
+    id: trust
+    attributes:
+      label: Correctness and trust impact
+      description: How could this affect task validity, leakage, isolation, privacy, or fair comparison?
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This request supports trustworthy repository-specific benchmarks rather than unrelated agent launching.
+          required: true

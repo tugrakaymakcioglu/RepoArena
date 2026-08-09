@@ -1,0 +1,1 @@
+"""RepoArena command-line interface."""
