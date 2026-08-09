@@ -29,8 +29,9 @@ uv tool install --force .
 
 ## Build runtime images
 
-RepoArena does not publish or silently download provider credentials. Codex and Claude run in local
-images that contain their official CLIs.
+RepoArena does not publish or silently download provider credentials. Codex, Claude, and Gemini run
+in local images containing their official CLIs. OpenRouter and compatible routers use a local
+OpenCode image.
 
 macOS/Linux:
 
@@ -47,11 +48,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-images.ps1
 For reproducible provider CLI versions:
 
 ```bash
-CODEX_VERSION=0.147.0 CLAUDE_VERSION=2.1.226 sh ./scripts/build-images.sh
+CODEX_VERSION=x CLAUDE_VERSION=x GEMINI_VERSION=x OPENCODE_VERSION=x \
+  sh ./scripts/build-images.sh
 ```
 
 ```powershell
-.\scripts\build-images.ps1 -CodexVersion 0.147.0 -ClaudeVersion 2.1.226
+.\scripts\build-images.ps1 `
+  -CodexVersion x -ClaudeVersion x -GeminiVersion x -OpenCodeVersion x
 ```
 
 These version values are examples known to support the V1 adapter flags. RepoArena resolves and
@@ -67,6 +70,9 @@ macOS/Linux:
 ```bash
 export OPENAI_API_KEY="..."
 export ANTHROPIC_API_KEY="..."
+export GEMINI_API_KEY="..."
+export OPENROUTER_API_KEY="..."
+export ROUTER_API_KEY="..."
 ```
 
 Windows PowerShell:
@@ -74,6 +80,9 @@ Windows PowerShell:
 ```powershell
 $env:OPENAI_API_KEY = "..."
 $env:ANTHROPIC_API_KEY = "..."
+$env:GEMINI_API_KEY = "..."
+$env:OPENROUTER_API_KEY = "..."
+$env:ROUTER_API_KEY = "..."
 ```
 
 To use a provider-native login or subscription, point RepoArena at the credential file created by
@@ -94,6 +103,10 @@ database, logs, patch artifact, or verifier.
 Only credentials for the selected agent are forwarded to its solver container. Verifier containers
 receive none of them.
 
+Gemini, OpenRouter, and router profiles are disabled by default. Enable them and select a model in
+`.repoarena/config.toml`; see [provider and router configuration](providers.md). Never place the key
+itself in TOML.
+
 ## Initialize a target repository
 
 Change into the repository being measured—not the RepoArena source directory—then run:
@@ -112,6 +125,9 @@ access, credentials, and working-tree state. Warnings and errors include an acti
 repoarena discover
 repoarena benchmark --agent codex
 repoarena benchmark --agent claude
+repoarena benchmark --agent gemini
+repoarena benchmark --agent openrouter
+repoarena benchmark --agent router
 repoarena report
 ```
 
@@ -126,5 +142,9 @@ The HTML report is written to `.repoarena/reports/` in the target repository.
 - **Docker image missing:** rerun the image build script from the RepoArena source checkout.
 - **Provider auth missing:** set the matching environment variable or configure a provider-native
   credential file path.
+- **Local router unreachable:** use `host.docker.internal`, not `localhost`, in `agents.router.base_url`;
+  confirm the configured port and run `repoarena doctor` again.
+- **Router model missing:** set the exact model identifier exposed by OpenRouter or your compatible
+  router before enabling that adapter.
 - **No valid tasks:** inspect discovery rejection counts. Tasks need a clear description, focused
   source changes, changed tests, and a supported reproducible environment.

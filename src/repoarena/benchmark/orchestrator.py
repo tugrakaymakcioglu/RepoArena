@@ -134,11 +134,9 @@ class BenchmarkOrchestrator:
                         )
                         completed += 1
                         continue
-                    secrets = [
-                        value
-                        for name in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GITHUB_TOKEN")
-                        if (value := os.environ.get(name))
-                    ]
+                    secrets = list(agent.secret_values())
+                    if github_token := os.environ.get("GITHUB_TOKEN"):
+                        secrets.append(github_token)
                     if redact(patch, secrets) != patch:
                         self.database.finish_run(
                             run_id,

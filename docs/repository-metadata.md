@@ -23,8 +23,11 @@ coding-agents
 developer-tools
 docker
 github
+gemini
 llm-evaluation
+llm-router
 local-first
+openrouter
 open-source
 privacy-first
 python
@@ -51,9 +54,9 @@ safe margins so link previews do not crop it.
 
 ## Suggested first release
 
-- Tag: `v0.1.0-alpha.1`
-- Title: `RepoArena v0.1.0-alpha.1 — repository-specific coding-agent benchmarks`
-- Summary: `First public alpha of the local-first RepoArena CLI, including GitHub history discovery, leakage-resistant solver snapshots, fake/Codex/Claude adapters, independent Docker verification, SQLite persistence, and local HTML reports.`
+- Tag: `v0.1.1`
+- Title: `RepoArena v0.1.1 — Gemini and router benchmark support`
+- Summary: `Alpha update adding Gemini CLI, OpenRouter and OpenAI-compatible router adapters while preserving leakage-resistant solver snapshots, independent Docker verification, local SQLite persistence and self-contained reports.`
 
 Create the release only after CI passes from a committed revision. Do not publish provider keys,
 `.repoarena/` runtime data, private fixture content, or local reports.

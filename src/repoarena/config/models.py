@@ -3,6 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 from re import Pattern
 from re import compile as compile_pattern
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -77,13 +78,98 @@ class AgentConfig(BaseModel):
             raise ValueError("value must be non-empty and NUL-free")
         return value
 
+    @field_validator("model")
+    @classmethod
+    def safe_model(cls, value: str | None) -> str | None:
+        if value is not None and (
+            not value.strip()
+            or value != value.strip()
+            or any(character.isspace() or ord(character) < 32 for character in value)
+        ):
+            raise ValueError("model must be a non-empty, whitespace-free identifier")
+        return value
+
     @field_validator("allowed_domains")
     @classmethod
     def validate_domains(cls, values: list[str]) -> list[str]:
         domain = re_compile_domain()
         if any(len(value) > 253 or not domain.fullmatch(value) for value in values):
             raise ValueError("allowed_domains must contain DNS suffixes only")
-        return values
+        return [value.lower() for value in values]
+
+
+class EnvironmentAgentConfig(AgentConfig):
+    """Agent authentication that is intentionally limited to an environment variable."""
+
+    @model_validator(mode="after")
+    def no_credential_file(self) -> EnvironmentAgentConfig:
+        if self.credential_file is not None:
+            raise ValueError("this agent supports environment-backed API keys, not credential_file")
+        return self
+
+
+class RouterAgentConfig(AgentConfig):
+    """Configuration for an OpenAI-compatible endpoint used through OpenCode."""
+
+    provider_id: str = "router"
+    base_url: str
+    api_key_env: str
+
+    @field_validator("provider_id")
+    @classmethod
+    def safe_provider_id(cls, value: str) -> str:
+        if not compile_pattern(r"[a-z][a-z0-9_-]{0,63}").fullmatch(value):
+            raise ValueError("provider_id must be a lowercase provider identifier")
+        return value
+
+    @field_validator("api_key_env")
+    @classmethod
+    def safe_api_key_environment(cls, value: str) -> str:
+        if not compile_pattern(r"[A-Za-z_][A-Za-z0-9_]*").fullmatch(value):
+            raise ValueError("api_key_env must be an environment variable name")
+        return value
+
+    @field_validator("base_url")
+    @classmethod
+    def safe_base_url(cls, value: str) -> str:
+        parsed = urlsplit(value)
+        try:
+            port = parsed.port
+        except ValueError as exc:
+            raise ValueError("base_url contains an invalid port") from exc
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "base_url must be an HTTP(S) URL without credentials, query, or fragment"
+            )
+        if parsed.scheme == "http" and parsed.hostname != "host.docker.internal":
+            raise ValueError("plain HTTP router URLs must use host.docker.internal")
+        if parsed.scheme == "https" and port not in {None, 443}:
+            raise ValueError("HTTPS router URLs must use port 443 with provider-only networking")
+        return value.rstrip("/")
+
+    @model_validator(mode="after")
+    def enabled_router_is_complete(self) -> RouterAgentConfig:
+        if self.credential_file is not None:
+            raise ValueError(
+                "router agents support environment-backed API keys, not credential_file"
+            )
+        if self.enabled and self.model is None:
+            raise ValueError("enabled router agents require a model")
+        host = urlsplit(self.base_url).hostname
+        covered = host is not None and any(
+            host == suffix.lstrip(".") or (suffix.startswith(".") and host.endswith(suffix))
+            for suffix in self.allowed_domains
+        )
+        if not covered:
+            raise ValueError("base_url host must be covered by allowed_domains")
+        return self
 
 
 def re_compile_domain() -> Pattern[str]:
@@ -121,6 +207,36 @@ class AgentsConfig(BaseModel):
             image="repoarena/claude:local",
             executable="claude",
             allowed_domains=[".anthropic.com", ".claude.ai"],
+        )
+    )
+    gemini: EnvironmentAgentConfig = Field(
+        default_factory=lambda: EnvironmentAgentConfig(
+            enabled=False,
+            image="repoarena/gemini:local",
+            executable="gemini",
+            allowed_domains=[".googleapis.com"],
+        )
+    )
+    openrouter: RouterAgentConfig = Field(
+        default_factory=lambda: RouterAgentConfig(
+            enabled=False,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="openrouter",
+            base_url="https://openrouter.ai/api/v1",
+            api_key_env="OPENROUTER_API_KEY",
+            allowed_domains=[".openrouter.ai"],
+        )
+    )
+    router: RouterAgentConfig = Field(
+        default_factory=lambda: RouterAgentConfig(
+            enabled=False,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="router",
+            base_url="http://host.docker.internal:20128/v1",
+            api_key_env="ROUTER_API_KEY",
+            allowed_domains=["host.docker.internal"],
         )
     )
 

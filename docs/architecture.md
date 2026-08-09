@@ -20,3 +20,13 @@ Benchmark sessions hash the complete canonical task definitions before the first
 compare completed sessions with the same task-set hash. Agents execute sequentially to avoid timing
 contention and receive a fresh solver workspace for every task. Interrupted RUNNING rows are closed
 explicitly before a later session starts.
+
+Provider-specific command construction stays behind `AgentRunner`. Codex, Claude, and Gemini use
+their official CLIs; OpenRouter and compatible routers use OpenCode to provide the file-editing and
+tool loop that a raw chat-completions request does not provide. Router configuration contains an
+endpoint, provider ID, model ID, and API-key environment variable name, but never the key value.
+
+Solver traffic crosses an internal Docker network through the egress proxy. Remote endpoints are
+limited to configured DNS suffixes. Local routers are reached through the proxy's explicit
+`host.docker.internal` host-gateway mapping. Final verification remains on Docker's `none` network
+regardless of the selected provider path.

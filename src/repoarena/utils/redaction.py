@@ -8,10 +8,11 @@ _SECRET_PATTERNS = (
     re.compile(r"\b(sk-[A-Za-z0-9_-]{16,})\b"),
     re.compile(r"\b(gh[oprsu]_[A-Za-z0-9]{20,})\b"),
 )
+_ANSI_ESCAPE = re.compile(r"\x1B(?:\[[0-?]*[ -/]*[@-~]|[@-_])")
 
 
 def redact(text: str, extra_values: Iterable[str] = ()) -> str:
-    redacted = text
+    redacted = _ANSI_ESCAPE.sub("", text)
     for pattern in _SECRET_PATTERNS:
         redacted = pattern.sub(
             lambda match: match.group(0).replace(match.group(match.lastindex or 0), "[REDACTED]"),

@@ -19,9 +19,19 @@ Linux capabilities dropped, and `no-new-privileges`. Only the workspace and an e
 credential file may be mounted into a solver. The verifier receives no credentials. Final tests use
 Docker's `none` network.
 
+Agent home directories are separate ephemeral tmpfs mounts. Environment-backed API-key values are
+passed to the Docker client through its process environment rather than `--env KEY=value` command
+arguments. Values are redacted from captured output and checked against generated patches before an
+artifact is written.
+
 Provider-only networking places the solver on an internal Docker network. A Squid sidecar is the only
 member with an external network and permits CONNECT only to configured provider suffixes. GitHub and
 general internet access are not allowed from the solver.
+
+For local routers, only the proxy sidecar receives a `host.docker.internal` host-gateway mapping and
+the configured allowlist must explicitly name that host. This does not secure the router itself.
+Keep local router software current, require its API key, bind it narrowly, and use host firewall
+rules so unrelated network clients cannot reach it.
 
 ## Residual risks
 

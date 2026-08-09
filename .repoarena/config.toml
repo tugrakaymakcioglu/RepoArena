@@ -45,3 +45,33 @@ allowed_domains = [
     ".anthropic.com",
     ".claude.ai",
 ]
+
+[agents.gemini]
+enabled = false
+image = "repoarena/gemini:local"
+executable = "gemini"
+allowed_domains = [
+    ".googleapis.com",
+]
+
+[agents.openrouter]
+enabled = false
+image = "repoarena/opencode:local"
+executable = "opencode"
+allowed_domains = [
+    ".openrouter.ai",
+]
+provider_id = "openrouter"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+
+[agents.router]
+enabled = false
+image = "repoarena/opencode:local"
+executable = "opencode"
+allowed_domains = [
+    "host.docker.internal",
+]
+provider_id = "router"
+base_url = "http://host.docker.internal:20128/v1"
+api_key_env = "ROUTER_API_KEY"

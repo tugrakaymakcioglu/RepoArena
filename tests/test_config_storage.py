@@ -8,7 +8,12 @@ import pytest
 from pydantic import ValidationError
 
 from repoarena.config import initialize, load_config
-from repoarena.config.models import AgentConfig, SandboxConfig
+from repoarena.config.models import (
+    AgentConfig,
+    EnvironmentAgentConfig,
+    RouterAgentConfig,
+    SandboxConfig,
+)
 from repoarena.storage import Database
 
 
@@ -24,7 +29,11 @@ def test_init_is_idempotent_and_migrates_database(tmp_path: Path) -> None:
 
     assert created is True
     assert second_created is False
-    assert load_config(paths).schema_version == 1
+    config = load_config(paths)
+    assert config.schema_version == 1
+    assert config.agents.gemini.enabled is False
+    assert config.agents.openrouter.base_url == "https://openrouter.ai/api/v1"
+    assert config.agents.router.base_url == "http://host.docker.internal:20128/v1"
     ignore = (repository / ".gitignore").read_text(encoding="utf-8")
     assert ignore.count(".repoarena/repoarena.db\n") == 1
     connection = sqlite3.connect(paths.database)
@@ -73,6 +82,50 @@ def test_storage_recovers_interrupted_sessions(tmp_path: Path) -> None:
             allowed_domains=["-unsafe.example"],
         ),
         lambda: SandboxConfig(memory="unlimited"),
+        lambda: EnvironmentAgentConfig(
+            image="repoarena/gemini:local",
+            executable="gemini",
+            credential_file="credentials.json",
+        ),
+        lambda: RouterAgentConfig(
+            enabled=True,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="router",
+            base_url="http://router.example.test/v1",
+            api_key_env="ROUTER_API_KEY",
+            model="coding-model",
+            allowed_domains=["router.example.test"],
+        ),
+        lambda: RouterAgentConfig(
+            enabled=True,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="router",
+            base_url="https://router.example.test:8443/v1",
+            api_key_env="ROUTER_API_KEY",
+            model="coding-model",
+            allowed_domains=["router.example.test"],
+        ),
+        lambda: RouterAgentConfig(
+            enabled=True,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="router",
+            base_url="https://router.example.test/v1",
+            api_key_env="ROUTER_API_KEY",
+            allowed_domains=["router.example.test"],
+        ),
+        lambda: RouterAgentConfig(
+            enabled=True,
+            image="repoarena/opencode:local",
+            executable="opencode",
+            provider_id="router",
+            base_url="https://router.example.test/v1",
+            api_key_env="ROUTER_API_KEY",
+            model="coding-model",
+            allowed_domains=["different.example.test"],
+        ),
     ],
 )
 def test_unsafe_sandbox_configuration_is_rejected(factory: object) -> None:
