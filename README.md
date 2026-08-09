@@ -11,6 +11,8 @@ on someone else's benchmark.
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-F59E0B?style=flat-square)](#project-status)
 [![Telemetry: None](https://img.shields.io/badge/Telemetry-None-16A34A?style=flat-square)](#privacy-by-default)
 
+![RepoArena isolates multiple coding agents and independently verifies their patches](docs/assets/repoarena-hero.webp)
+
 Generic coding benchmarks can tell you which agent performs well on a shared task set. RepoArena
 answers the question that matters for your team:
 
@@ -20,26 +22,7 @@ RepoArena reconstructs real historical tasks at their pre-fix commits, gives eve
 sanitized problem, and independently verifies each generated patch in Docker. Results come from
 executed tests. RepoArena never inserts demo scores or estimated costs.
 
-```text
-Historical Issue
-      │
-      ▼
-Historical Base Commit
-      │
-      ├───────────────┐
-      ▼               ▼
-    Codex           Claude
-      │               │
-      ▼               ▼
-   Patch A           Patch B
-      │               │
-      └───────┬───────┘
-              ▼
-        Hidden Verifier
-              │
-              ▼
-         Local Report
-```
+![RepoArena benchmark isolation architecture](docs/assets/benchmark-pipeline.svg)
 
 ## Why RepoArena
 
@@ -67,7 +50,8 @@ software history without leaking the human solution.
   and networking disabled for final tests.
 - **Fair agent comparison** across immutable task definitions and identical verifier logic.
 - **Local SQLite history** plus terminal and self-contained HTML reports.
-- **Extensible adapters** for Codex CLI, Claude Code, and future coding agents.
+- **Extensible adapters** for Codex CLI, Claude Code, Gemini CLI, OpenRouter, and OpenAI-compatible
+  routers such as 9Router.
 
 ## Install
 
@@ -80,7 +64,7 @@ RepoArena is currently distributed from source while the project is in alpha.
 - a reachable Linux Docker daemon
 - [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/)
 - GitHub CLI authentication, `GITHUB_TOKEN`, or a public GitHub repository
-- your own Codex and/or Claude credentials for real agent runs
+- your own credentials for every enabled agent or router; RepoArena never supplies shared keys
 
 ### 1. Install the CLI
 
@@ -110,7 +94,7 @@ Windows PowerShell:
 powershell -ExecutionPolicy Bypass -File .\scripts\build-images.ps1
 ```
 
-The scripts build local proxy, Codex, and Claude images. You can pin provider CLI versions for a
+The scripts build local proxy, Codex, Claude, Gemini, and OpenCode images. You can pin provider CLI versions for a
 repeatable build; see [the installation guide](docs/installation.md).
 
 ### 3. Benchmark your repository
@@ -123,10 +107,20 @@ repoarena doctor
 repoarena discover
 repoarena benchmark --agent codex
 repoarena benchmark --agent claude
+repoarena benchmark --agent gemini
+repoarena benchmark --agent openrouter
+repoarena benchmark --agent router
 repoarena report
 ```
 
 Use `repoarena benchmark --all` to snapshot one task set and run every enabled agent sequentially.
+
+### The CLI at a glance
+
+![RepoArena 0.1.1 command-line interface showing version and available commands](docs/assets/cli-demo.gif)
+
+This recording shows the real `0.1.1` command surface. It contains no simulated benchmark scores
+and makes no provider calls.
 
 ## How it works
 
@@ -145,12 +139,14 @@ The solver receives an opaque task ID, a sanitized description, and detected lan
 receive the original repository URL, issue or PR number, historical commit IDs, human patch, hidden
 tests, verifier commands, or expected outputs.
 
+![Animated RepoArena isolation flow from historical base to offline verifier](docs/assets/isolation-flow.gif)
+
 ## Supported workflows
 
 | Area | Alpha support |
 | --- | --- |
 | Repository metadata | GitHub via authenticated `gh`, optional `GITHUB_TOKEN`, or public REST API |
-| Agents | Codex CLI and Claude Code in locally built Docker images |
+| Agents | Codex CLI, Claude Code, Gemini CLI, OpenRouter, and OpenAI-compatible routers in locally built Docker images |
 | Verification profiles | Python/pytest, Node test scripts, Go tests, or an explicit custom image |
 | Persistence | Local SQLite with transactional schema migrations |
 | Reports | Rich terminal summary and escaped, self-contained HTML |
@@ -192,6 +188,18 @@ enabled = true
 
 [agents.claude]
 enabled = true
+
+[agents.gemini]
+enabled = false
+
+[agents.openrouter]
+enabled = false
+model = "provider/model-id"
+
+[agents.router]
+enabled = false
+base_url = "http://host.docker.internal:20128/v1"
+model = "router-model-id"
 ```
 
 Valid agent patches are retained under the ignored `.repoarena/runs/` directory. The database,
@@ -201,6 +209,8 @@ caches, reports, and run artifacts are also ignored automatically. Do not place 
 ## Documentation
 
 - [Installation and first benchmark](docs/installation.md)
+- [Provider and router configuration](docs/providers.md)
+- [Changelog](CHANGELOG.md)
 - [Architecture](docs/architecture.md)
 - [Benchmark task format](docs/task-format.md)
 - [Threat model](docs/security.md)
@@ -227,7 +237,7 @@ for CI.
 
 ## Project status
 
-RepoArena is **alpha software**. The core local vertical slice, Codex and Claude adapters, Docker
+RepoArena is **alpha software**. The core local vertical slice, Codex, Claude, Gemini, and router adapters, Docker
 isolation, and local reports are implemented; compatibility across diverse repository build systems
 will continue to improve.
 
@@ -239,11 +249,15 @@ Current limitations:
   a Docker image.
 - Binary and submodule patches are rejected in V1.
 - Provider images are built locally rather than published by RepoArena.
+- OpenCode and provider CLIs are third-party runtimes; pin tested versions for repeatable benchmarks.
+- A local router must be reachable from Docker through `host.docker.internal`; Linux engines need
+  host-gateway support.
 - Provider endpoint allowlists may need updates when vendor authentication endpoints change.
 
 The roadmap includes broader extraction, deeper GitHub integration, optional shared benchmark
 history, and task-specific recommendations. There is no SaaS, hosted worker, account system, or
-model router in V1.
+RepoArena-operated model gateway. Router support connects to infrastructure selected and paid for
+by the user.
 
 ## Contributing
 

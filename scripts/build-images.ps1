@@ -1,6 +1,8 @@
 param(
     [string]$CodexVersion = "latest",
-    [string]$ClaudeVersion = "latest"
+    [string]$ClaudeVersion = "latest",
+    [string]$GeminiVersion = "latest",
+    [string]$OpenCodeVersion = "latest"
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,5 +16,11 @@ if ($LASTEXITCODE -ne 0) { throw "Failed to build the RepoArena Codex image." }
 
 & docker build --build-arg "CLAUDE_VERSION=$ClaudeVersion" -t repoarena/claude:local -f "$repoArenaRoot/docker/agents/claude.Dockerfile" $repoArenaRoot
 if ($LASTEXITCODE -ne 0) { throw "Failed to build the RepoArena Claude image." }
+
+& docker build --build-arg "GEMINI_VERSION=$GeminiVersion" -t repoarena/gemini:local -f "$repoArenaRoot/docker/agents/gemini.Dockerfile" $repoArenaRoot
+if ($LASTEXITCODE -ne 0) { throw "Failed to build the RepoArena Gemini image." }
+
+& docker build --build-arg "OPENCODE_VERSION=$OpenCodeVersion" -t repoarena/opencode:local -f "$repoArenaRoot/docker/agents/opencode.Dockerfile" $repoArenaRoot
+if ($LASTEXITCODE -ne 0) { throw "Failed to build the RepoArena OpenCode image." }
 
 Write-Host "RepoArena Docker images are ready." -ForegroundColor Green

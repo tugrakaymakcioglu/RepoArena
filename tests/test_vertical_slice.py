@@ -69,6 +69,15 @@ class FlakyTestDocker(LocalTestDocker):
         return SandboxExecution(1, f"FAILED variant {self.calls}", "", 0.01)
 
 
+class SecretAwareFakeAgent(FakeAgentRunner):
+    def __init__(self, patch: str, secret: str) -> None:
+        super().__init__(patch)
+        self.secret = secret
+
+    def secret_values(self) -> tuple[str, ...]:
+        return (self.secret,)
+
+
 def make_task(fixture: object) -> BenchmarkTaskV1:
     hidden = fixture.git.diff_patch(
         fixture.base, fixture.gold, include_paths=("tests/test_calculator.py",)
@@ -152,7 +161,7 @@ def test_provider_free_vertical_slice_records_verified_pass(
     assert "return left + right" in patch_path.read_text(encoding="utf-8")
 
 
-def _run_fake_agent(fixture: object, patch: str) -> object:
+def _run_fake_agent(fixture: object, patch: str, *, secret: str | None = None) -> object:
     paths = RepoArenaPaths.for_repository(fixture.path)
     for directory in (paths.state, paths.tasks, paths.runs, paths.reports, paths.cache):
         directory.mkdir(parents=True, exist_ok=True)
@@ -176,7 +185,8 @@ def _run_fake_agent(fixture: object, patch: str) -> object:
         verifier,
         PatchValidator(max_files=50, max_lines=2_000),
     )
-    orchestrator.run([FakeAgentRunner(patch)], timeout_seconds=30)
+    runner = SecretAwareFakeAgent(patch, secret) if secret else FakeAgentRunner(patch)
+    orchestrator.run([runner], timeout_seconds=30)
     return database.report_rows(fixture.git.repository_id)[0]
 
 
@@ -225,6 +235,27 @@ def test_patch_containing_a_credential_is_rejected_without_persistence(
     assert row["error_type"] == "SECRET_IN_PATCH"
     assert row["patch_path"] is None
     assert secret not in row["run_stderr"]
+
+
+def test_configured_router_secret_is_rejected_even_without_a_known_key_prefix(
+    synthetic_repository: object,
+) -> None:
+    secret = "router-credential-" + "value-123456789"
+    patch = (
+        "diff --git a/calculator.py b/calculator.py\n"
+        "--- a/calculator.py\n"
+        "+++ b/calculator.py\n"
+        "@@ -1,2 +1,3 @@\n"
+        " def add(left: int, right: int) -> int:\n"
+        f"+    # {secret}\n"
+        "-    return left - right\n"
+        "+    return left + right\n"
+    )
+    row = _run_fake_agent(synthetic_repository, patch, secret=secret)
+
+    assert row["status"] == RunStatus.INVALID_PATCH.value
+    assert row["error_type"] == "SECRET_IN_PATCH"
+    assert row["patch_path"] is None
 
 
 def test_flaky_baseline_is_rejected(synthetic_repository: object) -> None:

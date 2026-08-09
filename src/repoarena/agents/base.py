@@ -24,3 +24,7 @@ class AgentRunner(ABC):
     def cleanup(self) -> None:
         """Hook for provider-specific cleanup."""
         return None
+
+    def secret_values(self) -> tuple[str, ...]:
+        """Return in-memory credentials that must never enter artifacts."""
+        return ()

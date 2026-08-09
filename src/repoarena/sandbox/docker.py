@@ -174,10 +174,22 @@ class DockerRunner:
             "--env",
             "NO_COLOR=1",
         ]
+        if home_directory != "/tmp":  # noqa: S108 - container path
+            command.extend(
+                [
+                    "--tmpfs",
+                    (
+                        f"{home_directory}:rw,noexec,nosuid,nodev,size=268435456,"
+                        f"uid={uid},gid={gid},mode=0700"
+                    ),
+                ]
+            )
         for key, value in sorted(environment.items()):
             if not _ENVIRONMENT_NAME.fullmatch(key) or "\x00" in value:
                 raise SandboxError(f"Unsafe environment entry: {key}")
-            command.extend(["--env", f"{key}={value}"])
+            # Docker inherits the value from its own process environment. Keeping values out of
+            # argv prevents provider keys from appearing in process listings or failure messages.
+            command.extend(["--env", key])
         if credential_mount:
             source, target = credential_mount
             resolved_source = source.resolve()
@@ -196,6 +208,7 @@ class DockerRunner:
         try:
             result = run_process(
                 command,
+                env=environment,
                 input_text=input_text,
                 timeout=timeout_seconds,
                 check=False,
@@ -269,6 +282,8 @@ class DockerRunner:
                     network,
                     "--network-alias",
                     "proxy",
+                    "--add-host",
+                    "host.docker.internal:host-gateway",
                     "--read-only",
                     "--cap-drop",
                     "ALL",

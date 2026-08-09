@@ -42,7 +42,7 @@ class DockerCliAgent(AgentRunner):
         return errors
 
     def run(self, context: AgentContext, task: SolverTaskV1) -> AgentRunResult:
-        environment: dict[str, str] = {}
+        environment = self.additional_environment()
         if value := os.environ.get(self.credential_environment):
             environment[self.credential_environment] = value
         execution = self.docker.run(
@@ -73,6 +73,13 @@ class DockerCliAgent(AgentRunner):
             version=self._detected_version or self._resolved_image,
             exact_cost=self.extract_exact_cost(execution.stdout),
         )
+
+    def additional_environment(self) -> dict[str, str]:
+        return {}
+
+    def secret_values(self) -> tuple[str, ...]:
+        value = os.environ.get(self.credential_environment)
+        return (value,) if value else ()
 
     def _credential_mount(self) -> tuple[Path, str] | None:
         if not self.config.credential_file:

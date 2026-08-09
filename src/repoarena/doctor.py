@@ -34,6 +34,42 @@ class DoctorCheck:
 def collect_checks(paths: RepoArenaPaths) -> list[DoctorCheck]:
     config = load_config(paths)
     checks: list[DoctorCheck] = []
+    agent_specs = tuple(
+        spec
+        for spec in (
+            (
+                "Codex",
+                config.agents.codex,
+                "OPENAI_API_KEY",
+                "docker/agents/codex.Dockerfile",
+            ),
+            (
+                "Claude",
+                config.agents.claude,
+                "ANTHROPIC_API_KEY",
+                "docker/agents/claude.Dockerfile",
+            ),
+            (
+                "Gemini",
+                config.agents.gemini,
+                "GEMINI_API_KEY",
+                "docker/agents/gemini.Dockerfile",
+            ),
+            (
+                "OpenRouter",
+                config.agents.openrouter,
+                config.agents.openrouter.api_key_env,
+                "docker/agents/opencode.Dockerfile",
+            ),
+            (
+                "Router",
+                config.agents.router,
+                config.agents.router.api_key_env,
+                "docker/agents/opencode.Dockerfile",
+            ),
+        )
+        if spec[1].enabled
+    )
     git = shutil.which("git")
     checks.append(
         DoctorCheck(
@@ -68,11 +104,19 @@ def collect_checks(paths: RepoArenaPaths) -> list[DoctorCheck]:
                 "Reachable" if daemon_ready else "Start Docker Desktop or dockerd",
             )
         )
-        for label, image, build in (
-            ("Egress proxy", config.sandbox.proxy_image, "docker/sandbox/proxy.Dockerfile"),
-            ("Codex image", config.agents.codex.image, "docker/agents/codex.Dockerfile"),
-            ("Claude image", config.agents.claude.image, "docker/agents/claude.Dockerfile"),
-        ):
+        image_specs: dict[str, tuple[str, str]] = {
+            config.sandbox.proxy_image: (
+                "Egress proxy",
+                "docker/sandbox/proxy.Dockerfile",
+            )
+        }
+        for label, agent, _, build in agent_specs:
+            existing = image_specs.get(agent.image)
+            image_specs[agent.image] = (
+                f"{existing[0]} / {label} image" if existing else f"{label} image",
+                build,
+            )
+        for image, (label, build) in image_specs.items():
             exists = daemon_ready and docker.image_exists(image)
             checks.append(
                 DoctorCheck(
@@ -81,16 +125,13 @@ def collect_checks(paths: RepoArenaPaths) -> list[DoctorCheck]:
                     image if exists else f"Build {build} as {image}",
                 )
             )
-        for label, agent in (
-            ("Codex CLI", config.agents.codex),
-            ("Claude CLI", config.agents.claude),
-        ):
+        for label, agent, _, _ in agent_specs:
             if daemon_ready and docker.image_exists(agent.image):
                 identity = docker.image_identity(agent.image)
                 version = docker.executable_version(identity, agent.executable)
                 checks.append(
                     DoctorCheck(
-                        label,
+                        f"{label} CLI",
                         CheckLevel.OK if version else CheckLevel.ERROR,
                         version or f"{agent.executable} --version failed in {agent.image}",
                     )
@@ -108,10 +149,8 @@ def collect_checks(paths: RepoArenaPaths) -> list[DoctorCheck]:
                 "Using unauthenticated public API with a low rate limit",
             )
         )
-    _credential_check(checks, "Codex auth", "OPENAI_API_KEY", config.agents.codex.credential_file)
-    _credential_check(
-        checks, "Claude auth", "ANTHROPIC_API_KEY", config.agents.claude.credential_file
-    )
+    for label, agent, variable, _ in agent_specs:
+        _credential_check(checks, f"{label} auth", variable, agent.credential_file)
     return checks
 
 

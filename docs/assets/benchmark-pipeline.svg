@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">RepoArena benchmark isolation architecture</title>
+  <desc id="desc">A historical issue becomes a sanitized task, multiple agents work in fresh isolated solver repositories, and patches are tested by an independent offline verifier.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#0d1830"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#4b6b93"/>
+    </marker>
+    <style>
+      .heading { font: 700 27px Inter, ui-sans-serif, system-ui, sans-serif; fill: #f8fafc; }
+      .eyebrow { font: 700 12px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: 2px; fill: #7dd3fc; }
+      .label { font: 700 17px Inter, ui-sans-serif, system-ui, sans-serif; fill: #e2e8f0; }
+      .copy { font: 500 13px Inter, ui-sans-serif, system-ui, sans-serif; fill: #94a3b8; }
+      .small { font: 600 12px Inter, ui-sans-serif, system-ui, sans-serif; fill: #cbd5e1; }
+      .card { fill: #111f35; stroke: #29405f; stroke-width: 1.5; }
+    </style>
+  </defs>
+  <rect width="1200" height="520" rx="24" fill="url(#background)"/>
+  <circle cx="1020" cy="72" r="180" fill="#0e7490" opacity=".08"/>
+  <circle cx="155" cy="500" r="220" fill="#4f46e5" opacity=".07"/>
+
+  <text x="54" y="54" class="eyebrow">TRUSTWORTHY BY CONSTRUCTION</text>
+  <text x="54" y="91" class="heading">The human solution never enters the solver workspace.</text>
+  <text x="54" y="120" class="copy">Every agent receives the same sanitized task. Every patch is judged independently.</text>
+
+  <path d="M267 288 H335" stroke="#4b6b93" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M543 288 H611" stroke="#4b6b93" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M865 288 H933" stroke="#4b6b93" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g transform="translate(54 166)">
+    <rect width="213" height="244" rx="18" class="card"/>
+    <rect x="22" y="22" width="54" height="54" rx="14" fill="#172d47"/>
+    <circle cx="39" cy="49" r="5" fill="#38bdf8"/>
+    <circle cx="59" cy="38" r="5" fill="#818cf8"/>
+    <circle cx="59" cy="61" r="5" fill="#34d399"/>
+    <path d="M43 46 L55 40 M43 52 L55 59" stroke="#64748b" stroke-width="3"/>
+    <text x="22" y="105" class="label">Historical task</text>
+    <text x="22" y="135" class="copy">Issue + base commit</text>
+    <text x="22" y="158" class="copy">Merged source change</text>
+    <text x="22" y="181" class="copy">Hidden test change</text>
+    <rect x="22" y="204" width="169" height="24" rx="8" fill="#0b1728"/>
+    <text x="35" y="221" class="small">validated twice</text>
+  </g>
+
+  <g transform="translate(335 166)">
+    <rect width="208" height="244" rx="18" class="card"/>
+    <rect x="22" y="22" width="164" height="54" rx="12" fill="#0b1728" stroke="#315172"/>
+    <path d="M39 40 H157 M39 51 H137 M39 62 H119" stroke="url(#accent)" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+    <text x="22" y="105" class="label">Sanitized task</text>
+    <text x="22" y="135" class="copy">Opaque task ID</text>
+    <text x="22" y="158" class="copy">Problem description</text>
+    <text x="22" y="181" class="copy">Detected languages</text>
+    <rect x="22" y="204" width="164" height="24" rx="8" fill="#2a1720"/>
+    <text x="35" y="221" class="small" fill="#fda4af">no gold metadata</text>
+  </g>
+
+  <g transform="translate(611 154)">
+    <rect width="254" height="268" rx="18" fill="#0e1d31" stroke="#3b5b82" stroke-width="1.5"/>
+    <text x="22" y="39" class="label">Fresh solver containers</text>
+    <g transform="translate(22 58)">
+      <rect width="98" height="54" rx="10" fill="#152943" stroke="#315172"/>
+      <text x="15" y="33" class="small">Codex</text>
+      <rect x="112" width="98" height="54" rx="10" fill="#152943" stroke="#315172"/>
+      <text x="127" y="33" class="small">Claude</text>
+      <rect y="68" width="98" height="54" rx="10" fill="#152943" stroke="#315172"/>
+      <text x="15" y="101" class="small">Gemini</text>
+      <rect x="112" y="68" width="98" height="54" rx="10" fill="#152943" stroke="#315172"/>
+      <text x="127" y="101" class="small">Router</text>
+    </g>
+    <rect x="22" y="202" width="210" height="42" rx="10" fill="#0b1728"/>
+    <text x="38" y="220" class="small">one synthetic commit</text>
+    <text x="38" y="237" class="copy">no remote · no future objects</text>
+  </g>
+
+  <g transform="translate(933 166)">
+    <rect width="213" height="244" rx="18" fill="#10251f" stroke="#1f7660" stroke-width="1.5"/>
+    <path d="M106 24 L144 39 V72 C144 96 128 113 106 123 C84 113 68 96 68 72 V39 Z" fill="#0b3b32" stroke="#34d399" stroke-width="2" filter="url(#glow)"/>
+    <path d="M88 72 L101 85 L126 57" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="22" y="151" class="label">Hidden verifier</text>
+    <text x="22" y="180" class="copy">Independent base snapshot</text>
+    <text x="22" y="203" class="copy">Hidden tests restored</text>
+    <text x="22" y="226" class="copy">Network disabled</text>
+  </g>
+
+  <g transform="translate(54 445)">
+    <circle cx="7" cy="7" r="7" fill="#34d399"/>
+    <text x="24" y="12" class="small">Same tasks</text>
+    <circle cx="150" cy="7" r="7" fill="#38bdf8"/>
+    <text x="167" y="12" class="small">Same verifier</text>
+    <circle cx="315" cy="7" r="7" fill="#818cf8"/>
+    <text x="332" y="12" class="small">Fresh workspace per run</text>
+    <circle cx="550" cy="7" r="7" fill="#f59e0b"/>
+    <text x="567" y="12" class="small">User-owned credentials</text>
+  </g>
+</svg>
