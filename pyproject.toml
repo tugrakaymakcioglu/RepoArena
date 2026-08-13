@@ -5,34 +5,50 @@ build-backend = "hatchling.build"
 [project]
 name = "repoarena"
 version = "0.1.1"
-description = "SWE-bench for your own repository: benchmark AI coding agents on real project history."
+description = "SWE-bench for your private repository. Benchmark Claude Code, Codex, Gemini CLI & OpenRouter agents against real historical Git tasks in isolated Docker."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
-authors = [{ name = "RepoArena contributors" }]
+authors = [
+  { name = "Tugra Kaymakcioglu" },
+  { name = "RepoArena contributors" }
+]
 keywords = [
-  "ai",
-  "benchmark",
-  "claude",
-  "coding-agent",
-  "codex",
-  "developer-tools",
-  "docker",
-  "evaluation",
-  "git",
-  "github",
-  "gemini",
-  "llm",
-  "openrouter",
   "swe-bench",
+  "ai-benchmarking",
+  "ai-agents",
+  "coding-agent",
+  "llm-evaluation",
+  "claude-code",
+  "codex",
+  "gemini",
+  "openrouter",
+  "docker-sandbox",
+  "benchmark",
+  "developer-tools",
+  "software-engineering",
+  "git-history",
+  "llm",
+  "ai-evals",
+  "code-generation",
+  "automated-testing",
+  "cli",
+  "python"
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: Science/Research",
   "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Quality Assurance",
   "Topic :: Software Development :: Testing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
   "httpx>=0.27,<1",
@@ -57,7 +73,9 @@ repoarena = "repoarena.cli.app:app"
 
 [project.urls]
 Homepage = "https://github.com/tugrakaymakcioglu/RepoArena"
+Repository = "https://github.com/tugrakaymakcioglu/RepoArena.git"
 Issues = "https://github.com/tugrakaymakcioglu/RepoArena/issues"
+Changelog = "https://github.com/tugrakaymakcioglu/RepoArena/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/repoarena"]

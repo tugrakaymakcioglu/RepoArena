@@ -1,17 +1,27 @@
-# RepoArena
+<div align="center">
 
-**SWE-bench for your own repository.**
+<img src="docs/assets/banner.png" alt="RepoArena - SWE-bench for Your Own Repository" width="100%" />
 
-Benchmark AI coding agents on the issues, pull requests, and tests that shaped your codebase—not
-on someone else's benchmark.
+# ⚔️ RepoArena
+
+### SWE-bench for Your Private Repository: Benchmark AI Coding Agents on Real Project History
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tugrakaymakcioglu/RepoArena/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/tugrakaymakcioglu/RepoArena/actions/workflows/ci.yml)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-0B7285?style=flat-square)](LICENSE)
-[![Status: Alpha](https://img.shields.io/badge/Status-Alpha-F59E0B?style=flat-square)](#project-status)
+[![SWE-bench Native](https://img.shields.io/badge/Benchmark-SWE--bench%20Style-FF6B6B?style=flat-square)](#why-repoarena)
+[![Docker Isolated](https://img.shields.io/badge/Sandbox-Docker%20Offline-2496ED?style=flat-square&logo=docker&logoColor=white)](#how-it-works)
 [![Telemetry: None](https://img.shields.io/badge/Telemetry-None-16A34A?style=flat-square)](#privacy-by-default)
 
-![RepoArena isolates multiple coding agents and independently verifies their patches](docs/assets/repoarena-hero.webp)
+[Türkçe Dokümantasyon](README.tr.md) &nbsp;·&nbsp; [Install](#install) &nbsp;·&nbsp; [How It Works](#how-it-works) &nbsp;·&nbsp; [Supported Agents](#supported-workflows) &nbsp;·&nbsp; [Privacy](#privacy-by-default)
+
+<br>
+
+**Benchmark AI coding agents (Claude Code, Codex, Gemini CLI, OpenRouter) directly on the issues, pull requests, and tests that shaped YOUR codebase — not a generic public leaderboard.**
+
+</div>
+
+<br>
 
 Generic coding benchmarks can tell you which agent performs well on a shared task set. RepoArena
 answers the question that matters for your team:
